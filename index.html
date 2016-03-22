@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Adventure.js</title>
+<meta name="description" content="An adventure game engine written in Javascript">
+<!--
+<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+-->
+<!-- util libs -->
+<script src="lib/util.js"></script>
+<!-- astar libs (https://github.com/bgrins/javascript-astar) -->
+<script src="lib/graph.js"></script>
+<script src="lib/astar.js"></script>
+
+<!-- adventure libs -->
+<script src="src/adventure.js"></script>
+<script src="src/adventure-room.js"></script>
+<script src="src/adventure-asset.js"></script>
+<script src="src/adventure-sprite.js"></script>
+<script src="src/adventure-item.js"></script>
+<script src="src/adventure-player.js"></script>
+<script src="src/adventure-inventory.js"></script>
+
+<!-- game specific -->
+<script src="game/maps/oldfire.js"></script>
+<script src="game/rooms/oldfire.js"></script>
+<script src="game/game.js"></script>
+<script src="game/items/dog.js"></script>
+<script src="game/items/bottle.js"></script>
+<script src="game/items/chickenleg.js"></script>
+
+<style>
+.dialog {
+    font-family: Tahoma, Geneva, sans-serif;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+}
+.man-dialog {
+    color: #aab7fd;
+    font-size: 120%;
+}
+.status {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding:2px 5px 3px;
+    font-family: Tahoma, Geneva, sans-serif;
+    background: rgba(0,0,0,.4);
+    color: #fff;
+}
+.pocketed {
+    background-color: #fff;
+    border-radius: 10px;
+}
+/* TODO get rid of styles and handle thru code */
+.mirror {
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    transform: scaleX(-1);
+    -ms-filter: fliph; /*IE*/
+    filter: fliph; /*IE*/
+}
+.flip {
+    -moz-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    -o-transform: scaleY(-1);
+    transform: scaleY(-1);
+    -ms-filter: flipv; /*IE*/
+    filter: flipv; /*IE*/
+}
+</style>
+<body>
+
+<script>
+</script>
+</body>
+</html>
