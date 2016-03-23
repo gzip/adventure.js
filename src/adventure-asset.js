@@ -46,7 +46,7 @@ AdventureAsset.prototype =
             styles: {
                 position: 'absolute',
                 background: path ? 'url(' + path + ') no-repeat' : '',
-                imageRendering: util.resolveProperty('pixelated')
+                imageRendering: util.resolvePropertyValue('image-rendering', 'pixelated')
             },
             parentNode: opts.parentNode || document.body
         }, (opts || {}).attrs, {shallow: true}));
