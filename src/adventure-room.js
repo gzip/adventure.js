@@ -32,11 +32,7 @@ AdventureRoom.prototype =
             self.tileSize = asset.assetDims[0] / self.cols;
             
             util.setStyles(self.container, {
-                overflow: 'hidden',
-                imageRendering: util.resolveProperty('crisp-edges')
-                // pixelated
-                // -webkit-optimize-contrast
-                // -ms-interpolation-mode: nearest-neighbor
+                overflow: 'hidden'
             });
             
             if (util.isFunc(cb)) {
