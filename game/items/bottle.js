@@ -111,7 +111,7 @@ util.extend(GameBottle, AdventureItem,
         var bottle = this;
         bottle.setStyles({
             position: 'absolute',
-            transitionProperty: 'top, left, ' + util.resolveProperty('transform'),
+            transitionProperty: 'top, left, ' + util.resolvePrefix('transform'),
             transitionTimingFunction: 'ease-in, ease-out, ease-out',
             transitionDuration: '.2s',
             transform: 'rotate(-90deg)'
