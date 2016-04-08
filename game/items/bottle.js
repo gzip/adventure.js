@@ -93,8 +93,12 @@ util.extend(GameBottle, AdventureItem,
                         bottle.empty();
                         player.say("There, have some water.");
                     });
+                } else {
+                    return true;
                 }
-                else return true;
+            break;
+            case 'bone':
+                player.say("Unfortunately, it doesn't fit.");
             break;
             default: return true;
         }

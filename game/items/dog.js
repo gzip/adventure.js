@@ -47,6 +47,9 @@ util.extend(GameDog, AdventureItem,
                     player.say('I think it\'s missing something.');
                 }
             break;
+            case 'bone':
+                player.say('No way! My bone.');
+            break;
             default: return true;
         }
     },
