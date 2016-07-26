@@ -31,6 +31,7 @@
 <script src="game/items/chickenleg.js"></script>
 
 <style>
+body { margin:0; padding:0; }
 .dialog {
     font-family: Tahoma, Geneva, sans-serif;
     color: #fff;
@@ -76,4 +77,5 @@
 <script>
 </script>
 </body>
+<button onClick="if (localStorage.saveGame) game.load(); else alert('No save game found!');" style="float:right;">load!</button>
 </html>
