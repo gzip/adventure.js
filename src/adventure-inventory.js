@@ -10,7 +10,10 @@ AdventureInventory = function(path, opts, cb)
     var self = this;
 
     self.assetDims = util.get(opts, 'dims', [480, 30]);
-
+    
+    // holds references to removed items
+    self.limbo = util.create('div', {});
+    
     AdventureInventory.parent.constructor.apply(self, [path, opts, function (err, asset)
     {
         util.setStyles(self.container, {
@@ -50,7 +53,7 @@ util.extend(AdventureInventory, AdventureAsset,
         self.items.push(obj);
         self.selectItem(obj);
         
-        self.container.appendChild(obj.container);
+        util.append(self.container, obj.container);
 
         return true;
     },
@@ -100,11 +103,14 @@ util.extend(AdventureInventory, AdventureAsset,
     {
         var self = this,
             items = self.items,
-            lastX = 0;
+            nextX = 0,
+            containerHeight = parseInt(util.getStyle(self.container, 'height'), 10);
         
         items.forEach(function(item, index){
-            item.setXY(lastX + 10, Math.floor((parseInt(util.getStyle(self.container, 'height'), 10) - item.getHeight())/2));
-            lastX += item.getWidth() + 10;
+            item.setXY(nextX + 10, Math.floor(
+                (containerHeight - item.getHeight()) / 2
+            ));
+            nextX += item.getWidth() + 10;
         });
     },
     
@@ -113,8 +119,11 @@ util.extend(AdventureInventory, AdventureAsset,
         var self = this;
         
         self.items.forEach(function(item){
-            item.remove();
+            item.unset('pocketed');
+            util.append(self.limbo, item.container);
         });
+        
+        self.items = [];
     }
 });
 
