@@ -12,6 +12,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
 {
     init : function(game)
     {
+        // pocketable items must be created in init
         //var bottle, bone, chickenLeg, petals;
         
         // ITEM: bottle
@@ -348,7 +349,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                 chicken.setFrame(5);
                 chicken.stop();
                 
-                if (bowl.isNot("full")) {
+                if (bowl.isNot("full") && !player.has('chickenleg')) {
                     inventory.add(chickenLeg);
                 }
                 return true;
