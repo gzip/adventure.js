@@ -10,7 +10,7 @@ var util = SimpleUtil,
     regexDialogTarget = /^\s*:([^: ]+):\s+/,
     resources = {
         game: null, board: {}, cursor: null, player: null, rooms: {},
-        inventory: null, items: {}, selectedItem: null, targetItem: null,
+        inventory: null, items: {}, selectedItem: null, targetItem: null, currentRoomName: null,
         saved: {}
     };
 
@@ -241,7 +241,8 @@ Adventure.prototype =
             name = path === null ? key : opts.name || path.substr(
                 lastSlash + 1,
                 path[last]('.') - lastSlash - 1
-            );
+            ),
+            item = getItem(name);
         
         opts ? null : opts = {};
         if (key !== 'board') {
@@ -266,6 +267,12 @@ Adventure.prototype =
             util.setAttrs(obj.container, {name: name});
             
             obj.container.className = 'adv-' + key;
+            
+            // handle room to room
+            if (item) {
+                item.serialize();
+                resource.unserialize(item.attrs);
+            }
             
             // execute callback if present
             if (util.isFunc(cb)) {
@@ -293,6 +300,7 @@ Adventure.prototype =
         
         room = self.create('board', object, opts.background, opts);
         room.init(self);
+        
         resources.rooms[name] = room;
     },
     
@@ -301,7 +309,16 @@ Adventure.prototype =
         var room = resources.rooms[name],
             player = resources.player;
         
+        // remove items from previous room
+        if (resources.currentRoomName && name !== resources.currentRoomName) {
+            util.each(resources.items, function (item, name, items) {
+                items[name].remove();
+            });
+        }
+        
+        // load room and store a named reference
         room.load(null, game);
+        resources.currentRoomName = name;
         
         // supplement methods
         player.tileAt = util.bind(room.coordsToTile, self);
@@ -637,26 +654,32 @@ Adventure.prototype =
         {
             item.serialize();
             items[item.name] = item.attrs;
-            console.log(item.attrs, item.name);
         });
         
         player.serialize();
         items.player = player.attrs;
         
         localStorage.saveGame = JSON.stringify(items);
-        console.log(localStorage.saveGame);
+        console.log(items);
     },
     
     load: function()
     {
-        var saved = localStorage.saveGame,
-            inv;
+        var self = this,
+            saved = localStorage.saveGame;
+        
         if (saved) {
             resources.saved = JSON.parse(saved || '{}');
             console.log(resources.saved);
-            this.getInventory().clear();
+            
+            // clear inventory
+            self.getInventory().clear();
+            
+            // set player location and any attrs
             player.unserialize(resources.saved.player);
-            this.traverseItems(function(item) {
+            
+            // set all items to saved state
+            self.traverseItems(function(item) {
                 item.unserialize(resources.saved[item.name] || {});
             });
         }
