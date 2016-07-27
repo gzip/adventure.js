@@ -15,6 +15,7 @@ SimpleUtil.listen(window, 'load', function()
     inventory = game.createInventory();
     cursor = game.createCursor(root + 'cursor.png', {width: 35, height: 28, offsets:[[1,4],[15,24],[12,12],[12,8],[20,24]]});
     
-    game.registerRoom('oldfire', TheOldManAndTheFire, {background: root + 'bg.png', map: level1});
+    game.registerRoom('oldfire', TheOldManAndTheFire, {background: root + 'bg.png', map: oldfiremap});
+    game.registerRoom('sewer', Sewer, {background: root + '_sewer1.png', map: sewermap});
     game.loadRoom('oldfire');
 });
