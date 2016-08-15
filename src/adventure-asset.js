@@ -9,7 +9,7 @@ AdventureAsset = function(path, opts, cb)
 {
     var self = this;
     self.coords = [0,0];
-    self.init(path, opts || {}, cb);
+    self.load(path, opts || {}, cb);
     self.attrs = {};
     
     // create debug tile
@@ -26,7 +26,7 @@ AdventureAsset.prototype =
     bounds: null,
     attrs: {},
     
-    init: function(path, opts, cb)
+    load: function(path, opts, cb)
     {
         var self = this,
             img = path ? util.create('img', {
