@@ -35,8 +35,12 @@ AdventureItem = function(path, opts, cb)
 util.extend(AdventureItem, AdventureSprite,
 {
     name: '', // set by Adventure.create
-    listeners: null,
+    listeners: {},
     dialogIndices: {},
+    
+    init: function()
+    {
+    },
     
     on: function(eventName, fn, args)
     {
@@ -52,8 +56,8 @@ util.extend(AdventureItem, AdventureSprite,
         var self = this,
             result = true,
             inv = self.getInventory(),
-            selectedItem = inv.getSelectedItem(),
-            listeners = util.get(self, 'listeners.' + eventName),
+            selectedItem = inv && inv.getSelectedItem(),
+            listeners = self.listeners[eventName],
             method;
         
         payload = payload || {};
