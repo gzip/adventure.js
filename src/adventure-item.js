@@ -286,6 +286,10 @@ util.extend(AdventureItem, AdventureSprite,
     
     updateStatus: function()
     {
+    },
+    
+    getActionMethod: function()
+    {
     }
 });
 
