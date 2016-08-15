@@ -379,7 +379,7 @@ Adventure.prototype =
             obj = self.create('item', opts.itemClass || AdventureItem, path, opts, cb);
         
         // supplement methods
-        // TODO add to AdventureItem prototype and set properties instead?
+        // TODO add to AdventureItem prototype and set properties instead? Ideally all methods are available in constructor...
         obj.getInventory = getInventory;
         obj.addToInventory = function(){ return resources.inventory.add(obj); };
         obj.getTileSize = function(){ return resources.board.tileSize; };
@@ -397,6 +397,9 @@ Adventure.prototype =
         obj.getPlayer = getPlayer;
         obj.getItem = getItem;
         obj.say = util.bind(self.say, self, obj);
+        
+        // init object after all supplementary methods are added
+        obj.init();
         
         return obj;
     },
