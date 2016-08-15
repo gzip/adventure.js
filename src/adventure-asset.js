@@ -176,6 +176,10 @@ AdventureAsset.prototype =
             right = 2,
             bottom = 3;
         
+        if (b1 instanceof AdventureAsset) {
+            b1 = b1.getBounds();
+        }
+        
                 // bounds 1′s bottom edge is above bounds 2′s top edge
         return !(  b1[bottom] < b2[top]
                 // bounds 1′s top edge is under bounds 2′s bottom edge
