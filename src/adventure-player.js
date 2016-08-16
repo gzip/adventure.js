@@ -65,11 +65,12 @@ util.extend(AdventurePlayer, AdventureItem,
     lastDir: null,
     lastZ: 0,
     objective: null,
+    movePayload: null,
     
     getPublicMethods: function()
     {
-        return ['get', 'getCoords', 'getHeight', 'getWidth', 'getXY',
-                'has', 'isAt', 'say', 'setObjective', 'setXY', 'walkTo', 'cycleDialog'];
+        return ['cycleDialog', 'collidesWith', 'get', 'getBounds', 'getCoords', 'getHeight', 'getWidth', 'getXY',
+                'has', 'isAt', 'on', 'say', 'setObjective', 'setXY', 'walkTo'];
     },
     
     animateWalk: function(e)
@@ -129,7 +130,11 @@ util.extend(AdventurePlayer, AdventureItem,
     {
         var self = this,
             path = self.path;
-
+        
+        if (self.movePayload) {
+            self.fire('aftermove', self.movePayload);
+        }
+        
         if(path.length)
         {
             var node = path.shift(),
@@ -142,13 +147,15 @@ util.extend(AdventurePlayer, AdventureItem,
                 y = intVal(node.x * size + size / 2 - origin[1]),
                 curX = self.getX(),
                 curY = self.getY(),
-                isDiagnol = curX !== x && curY !== y,
-                duration = isDiagnol ? 2.0 : 1.0,
+                isDiagonal = curX !== x && curY !== y,
+                duration = isDiagonal ? 2.0 : 1.0,
                 dir = self.coordsToDir([x, y]);
             
             //self.tileAt([x, y], true); // debug
+            self.movePayload = {from: [curX, curY], to: [x, y], done: path.length === 1};
             self.setDuration(duration);
             self.animateWalk({dir: dir});
+            self.fire('beforemove', self.movePayload);
             self.setXY(x, y);
         }
         else
@@ -179,13 +186,12 @@ util.extend(AdventurePlayer, AdventureItem,
             self.target = objective.target;
         }
         
+        self.setObjective(objective);
         path = self.coordsToPath(coords);
         if (path && path.length) {
             self.setPath(path);
-            self.setObjective(objective);
         // TODO verify player walked to target?
         } else {
-            self.setObjective(objective);
             self.completeObjective();
         }
     },
@@ -262,6 +268,10 @@ util.extend(AdventurePlayer, AdventureItem,
     
     isAt: function(asset)
     {
+        if (!(asset instanceof AdventureAsset)) {
+            //return false;
+        }
+        
         var self = this,
             walkTo = asset.getWalkTo(),
             player = asset.getPlayer(),
