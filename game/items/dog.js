@@ -21,6 +21,18 @@ GameDog = function(path, opts, cb)
 
 util.extend(GameDog, AdventureItem,
 {
+    init: function()
+    {
+        var self = this,
+            player = self.getPlayer();
+        player.on('aftermove', function(payload)
+        {
+            if (player.collidesWith(self)) {
+                self.say('Growl!');
+            }
+        });
+    },
+    
     onPickUp: function()
     {
         var self = this,
