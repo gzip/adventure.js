@@ -186,7 +186,6 @@ util.extend(AdventurePlayer, AdventureItem,
             self.target = objective.target;
         }
         
-        self.setObjective(objective);
         path = self.coordsToPath(coords);
         if (path && path.length) {
             self.setPath(path);
@@ -194,6 +193,8 @@ util.extend(AdventurePlayer, AdventureItem,
         } else {
             self.completeObjective();
         }
+        
+        self.setObjective(objective);
     },
     
     completeObjective: function()
