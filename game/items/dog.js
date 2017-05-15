@@ -27,7 +27,7 @@ util.extend(GameDog, AdventureItem,
             player = self.getPlayer();
         player.on('aftermove', function(payload)
         {
-            if (player.collidesWith(self)) {
+            if (!self.is('asleep') && player.collidesWith(self)) {
                 self.say('Growl!');
             }
         });

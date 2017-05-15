@@ -98,6 +98,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                                 {
                                     game.add(bone);
                                     bowl.unset("full");
+                                    dog.set("asleep");
                                     player.say('He ate the chicken, spit out the bone, and passed out. W00t!');
                                 }, 1500);
                             });
