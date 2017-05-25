@@ -231,30 +231,36 @@ Adventure.prototype =
         util.append(this.container, asset && asset.container);
     },
     
-    create: function(key, type, path, opts, cb)
+    create: function(type, objClass, path, opts, cb)
     {
         var self = this,
             resource,
             index,
             last = 'lastIndexOf',
             lastSlash = path ? path[last]('/') : null,
-            name = path === null ? key : opts.name || path.substr(
+            name = path === null ? type : opts.name || path.substr(
                 lastSlash + 1,
                 path[last]('.') - lastSlash - 1
             ),
-            item = getItem(name);
+            item = getItem(name),
+            player = resources.player;
+        
+        // don't re-create if already in inventory
+        if (type == 'item' && player.has(name)) {
+            return item;
+        }
         
         opts ? null : opts = {};
-        if (key !== 'board') {
+        if (type !== 'board') {
             util.set(opts, 'attrs.parentNode', resources.board ? self.container : null);
         }
         
-        resource = new type(path, opts, function(err, obj)
+        resource = new objClass(path, opts, function(err, obj)
         {
             // determine z-index
-            if (key === 'cursor' || key === 'inventory') {
+            if (type === 'cursor' || type === 'inventory') {
                 index = 1000;
-            } else if (key === 'board') {
+            } else if (type === 'board') {
                 index = 1;
             } else if (opts.zIndex) {
                 index = opts.zIndex;
@@ -266,7 +272,7 @@ Adventure.prototype =
             util.setStyle(obj.container, zIndex, index);
             util.setAttrs(obj.container, {name: name});
             
-            obj.container.className = 'adv-' + key;
+            obj.container.className = 'adv-' + type;
             
             // handle room to room
             if (item) {
@@ -280,11 +286,11 @@ Adventure.prototype =
             }
         });
         
-        if (key == 'item') {
+        if (type == 'item') {
             resource.name = name;
             resources.items[name] = resource;
         } else {
-            resources[key] = resource;
+            resources[type] = resource;
         }
         
         return resource;
@@ -293,8 +299,9 @@ Adventure.prototype =
     registerRoom: function(name, object, opts)
     {
         var self = this,
-            opts = opts || {},
             room;
+        
+        opts = opts || {};
         
         util.set(opts, 'attrs.parentNode', self.container);
         
@@ -307,12 +314,22 @@ Adventure.prototype =
     loadRoom: function(name)
     {
         var room = resources.rooms[name],
-            player = resources.player;
+            player = resources.player,
+            curName = resources.currentRoomName,
+            curRoom = resources.rooms[curName];
         
-        // remove items from previous room
-        if (resources.currentRoomName && name !== resources.currentRoomName) {
+        // handle room switch
+        if (curName && name !== curName) {
+            // remove current room
+            if (curRoom) {
+                curRoom.container.remove();
+            }
+            // remove items from previous room
             util.each(resources.items, function (item, name, items) {
-                items[name].remove();
+                // don't remove if in inventory
+                if (!player.has(name)) {
+                    items[name].remove();
+                }
             });
         }
         
