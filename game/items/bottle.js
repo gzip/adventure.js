@@ -5,13 +5,13 @@ var util = SimpleUtil;
 GameBottle = function(path, opts, cb)
 {
     var self = this;
-
+    
     opts = util.merge(opts || {}, {
       width: 11, coords: [214, 119], walkTo: [-30, 70], layerPoint: [0, 50], zIndex: 100,
       pocketable: true, title: "bottle of wine",
       description: ["It's a bottle of wine.", "Two buck chuck?;; Probably more like Thunderbird."]
     });
-
+    
     // use call since opts has been modified
     GameBottle.parent.constructor.apply(self, arguments);
 };
@@ -22,7 +22,7 @@ util.extend(GameBottle, AdventureItem,
     {
         var bottle = this,
             player = bottle.getPlayer();
-
+        
         if (bottle.is("fallen")) {
             if (player.isAt(bottle)) {
                 setTimeout(function()
@@ -44,13 +44,13 @@ util.extend(GameBottle, AdventureItem,
             return true;
         }
     },
-
+    
     onBeforeUse: function(e)
     {
         var bottle = this,
             player = bottle.getPlayer(),
             target = e.target;
-
+        
         switch (target.name) {
             case "man":
                 if (target.is("asleep")) {
@@ -65,28 +65,19 @@ util.extend(GameBottle, AdventureItem,
             break;
         }
     },
-
+    
     onUse: function(e)
     {
         var bottle = this,
             player = bottle.getPlayer(),
-            target = e.target,
-            inventory = this.getInventory();
-
+            target = e.target;
+        
         switch (target.name) {
             case "petals":
                 if (player.has("bottle")) {
-                    if (man.is("asleep")) {
-                        player.say("He's had enough.");
-                    } else if (bottle.isNot("petaled")) {
-                        if (bottle.is("full")) {
-                            player.say("I put some petals in the bottle. It did need a little competitive edge.");
-                            bottle.set("petaled");
-                            bottle.setFrame(4);
-                            inventory.remove("petals");
-                        } else {
-                            player.say("I should probably fill it first.");
-                        }
+                    if (bottle.isNot("petaled")) {
+                        player.say("I put some petals in the bottle. It did need a little competitive edge.");
+                        bottle.set("petaled");
                     } else {
                         player.say("There are already some petals in there. They add a dreamy aroma.");
                     }
@@ -96,19 +87,12 @@ util.extend(GameBottle, AdventureItem,
             break;
             case "flower":
                 if (bottle.is("full")) {
-                    if (bottle.is("petaled")) {
-                        player.say("They're already sleepy.");
-                    } else if (flower.is("watered")) {
-                        player.say("They're already watered.");
-                    } else {
-                        player.say("That's a nice thought.");
-                        player.walkTo(flower, function walkToFlower()
-                        {
-                            bottle.empty();
-                            flower.set("watered");
-                            player.say("There, have some water.");
-                        });
-                    }
+                    player.say("That's a nice thought.");
+                    player.walkTo(flower, function walkToFlower()
+                    {
+                        bottle.empty();
+                        player.say("There, have some water.");
+                    });
                 } else {
                     return true;
                 }
@@ -119,13 +103,13 @@ util.extend(GameBottle, AdventureItem,
             default: return true;
         }
     },
-
+    
     onTalkTo: function()
     {
         var player = this.getPlayer();
         player.say("Do I look drunk?");
     },
-
+    
     onFall: function()
     {
         var bottle = this;
@@ -145,7 +129,7 @@ util.extend(GameBottle, AdventureItem,
         setTimeout(function() { bottle.setFrame(2); }, 200);
         bottle.setDesc(["It's an empty bottle of wine.", "It fell when I slammed into the well."]);
     },
-
+    
     setPocketed: function()
     {
         var bottle = this;
@@ -168,7 +152,7 @@ util.extend(GameBottle, AdventureItem,
         });
         return GameBottle.parent.setPocketed.apply(bottle, arguments);
     },
-
+    
     setFull: function()
     {
         var bottle = this,
