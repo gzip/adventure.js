@@ -315,7 +315,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
 
             // ITEM: chicken
             chicken = game.createItem(root + 'chicken.png', {width:40, coords:[100, 163], pocketable: true,
-                layerPoint:[100, 100], walkTo:[-5, 20], frameBounds:[1,4], playing:true, fps:2,
+                layerPoint:[100, 100], walkTo:[-5, 20], frameBounds:[1,8], playing:true, fps:2,
                 description: ['Finger lickin\' good.', 'Mmmm, plump breasts and thighs.',
                     'Poor old bird.', 'Hope I didn\'t know her.', 'I bet that mangey dog is dying for some.']
             });
@@ -371,7 +371,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             });
             chicken.setHobbled = function()
             {
-                chicken.setFrame(5);
+                chicken.setFrame(9);
                 chicken.stop();
 
                 if (bowl.isNot("full") && !player.has('chickenleg')) {
