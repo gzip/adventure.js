@@ -8,14 +8,14 @@ var util = SimpleUtil;
 AdventureItem = function(path, opts, cb)
 {
     var self = this;
-    
+
     self.opts = opts || {};
     if (self.opts.render === false) {
         util.set(self.opts, 'attrs.parentNode', null);
     }
-    
+
     self.listeners = {};
-    
+
     /*
     // create wrapper and pass to sprite constructor in opts
     self.wrapper = self.opts.parentNode = util.create('div', {
@@ -23,7 +23,7 @@ AdventureItem = function(path, opts, cb)
         className: 'adv-item'
     });
     */
-    
+
     AdventureItem.parent.constructor.apply(self, [path, self.opts, function(err, asset)
     {
         if (util.isFunc(cb)) {
@@ -37,11 +37,11 @@ util.extend(AdventureItem, AdventureSprite,
     name: '', // set by Adventure.create
     listeners: {},
     dialogIndices: {},
-    
+
     init: function()
     {
     },
-    
+
     on: function(eventName, fn, args)
     {
         var self = this;
@@ -50,7 +50,7 @@ util.extend(AdventureItem, AdventureSprite,
         }
         self.listeners[eventName].push({fn:fn, args:args});
     },
-    
+
     fire: function(eventName, payload)
     {
         var self = this,
@@ -59,23 +59,23 @@ util.extend(AdventureItem, AdventureSprite,
             selectedItem = inv && inv.getSelectedItem(),
             listeners = self.listeners[eventName],
             method;
-        
+
         payload = payload || {};
         payload.type = eventName;
-        
+
         switch (eventName) {
             case 'use':
                 payload.target = payload.target || (selectedItem !== self ? selectedItem : null);
             break;
         }
-        
+
         if (eventName == 'use' && selectedItem)
         {
             // run before use
             result = selectedItem.fire('beforeuse',
                 util.merge(payload, {target: self}, {clone: true, shallow: true})
             );
-            
+
             // return early if beforeUse returned false
             if (result === false) {
                 return result;
@@ -85,7 +85,7 @@ util.extend(AdventureItem, AdventureSprite,
                 result = true;
             }
         }
-        
+
         if(listeners)
         {
             for(var l=0, ll=listeners.length; l<ll; l++)
@@ -94,7 +94,7 @@ util.extend(AdventureItem, AdventureSprite,
                 result = result && listeners[l].fn(payload);
             }
         }
-        
+
         if (result === true)
         {
             method = self.getActionMethod(eventName);
@@ -105,10 +105,10 @@ util.extend(AdventureItem, AdventureSprite,
                 self.handleDefault(payload);
             }
         }
-        
+
         return result;
     },
-    
+
     handleDefault: function(e)
     {
         var self = this,
@@ -161,7 +161,7 @@ util.extend(AdventureItem, AdventureSprite,
                     //inv = self.getInventory(),
                     //numItems = inv.count(),
                     msg;
-                
+
                 if (true/*numItems*/) {
                     if (target) {
                         if (target.name == self.name) {
@@ -180,7 +180,7 @@ util.extend(AdventureItem, AdventureSprite,
                 } else {
                     msg =  "I have nothing to use.";
                 }
-                
+
                 if (msg) {
                     player.say(msg);
                 }
@@ -193,7 +193,7 @@ util.extend(AdventureItem, AdventureSprite,
             break;
         }
     },
-    
+
     getWalkTo: function()
     {
         var self = this,
@@ -205,7 +205,7 @@ util.extend(AdventureItem, AdventureSprite,
 
         return [x, y];
     },
-    
+
     cycleDialog: function(d, name, loop)
     {
         var self = this;
@@ -213,35 +213,35 @@ util.extend(AdventureItem, AdventureSprite,
             var n = name || self.name,
                 dIndex = self.dialogIndices[n] || 0,
                 dLen = d.length;
-            
+
             d = d[dIndex];
-            
+
             if(++dIndex === dLen) {
                 dIndex = loop !== false ? 0 : dIndex - 1;
             }
             self.dialogIndices[n] = dIndex;
         }
-        
+
         return d;
     },
-    
+
     setDesc: function(d)
     {
         this.set("description", d);
     },
-    
+
     getDesc: function()
     {
         var self = this;
         return self.get("description", self.opts.description);
     },
-    
+
     getTitle: function()
     {
         var self = this;
         return self.attrs.title || self.opts.title || self.name;
     },
-    
+
     setTitle: function(t)
     {
         var self = this;
@@ -251,43 +251,42 @@ util.extend(AdventureItem, AdventureSprite,
         }
         return t;
     },
-    
+
     // TODO addSetter('pocketed', bind(addToInventory))
     setPocketed: function(pocketed)
     {
         var self = this;
         if (self.isNot("pocketed")) {
-            self.attrs.pocketed = true;
-            return self.addToInventory();
+            util.addClass(self.container, "pocketed");
         }
-        return pocketed;
+        return true;
     },
-    
+
     // supplemented by Adventure
     getInventory: function()
     {
     },
-    
+
     addToInventory: function()
     {
     },
-    
+
     getTileSize: function()
     {
     },
-    
+
     setActive: function()
     {
     },
-    
+
     getPlayer: function()
     {
     },
-    
+
     updateStatus: function()
     {
     },
-    
+
     getActionMethod: function()
     {
     }
