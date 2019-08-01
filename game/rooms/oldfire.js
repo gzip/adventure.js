@@ -14,24 +14,24 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
     {
         // pocketable items must be created in init
         //var bottle, bone, chickenLeg, petals;
-        
+
         // ITEM: bottle
         bottle = game.createItem(root + 'bottle.png', {itemClass: GameBottle});
-        
+
         // ITEM: chicken leg
         chickenLeg = game.createItem(root + 'chickenleg.png', {itemClass: GameChickenLeg, render: false});
-    
+
         // ITEM: bone
         bone = game.createItem(root + 'chickenleg.png', {
             width: 25, frame: 2, coords: [330, 141], walkTo: [-10, 10],
             //layerPoint: [-10, 10],
-            name: 'bone', title: 'bone', pocketable: true, debug: true,
+            name: 'bone', title: 'bone', pocketable: true,
             description: [
                 "It's the chicken bone that the dog spit out."
             ],
             render: false
         });
-        
+
         // ITEM: petals
         petals = game.createItem(root + 'flower.png', {
             width: 16, height: 20, name: 'petals',
@@ -39,7 +39,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             render: false
         });
     },
-    
+
     load : function(err, game)
     {
         var self = this;
@@ -48,7 +48,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             //var well, dog, bowl, flower, fire, man, bucket, rock, chicken, flower;
             // items must be created from top to bottom so layering is correct w/ multiple collisions
             // TODO: order automatically based on y
-            
+
             // ITEM: flower
             flower = game.createItem(root + 'flower.png', {
                 coords:[150, 50], layerPoint:[0, 40], walkTo:[19, 48], pocketable: true,
@@ -71,10 +71,26 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             {
                 player.say("Nah. I don't want to disturb them.;; :flower: Zzz...");
             });
-            
+
             // ITEM: dog
             dog = game.createItem(root + 'dog.png', {itemClass: GameDog});
-            
+            dog.on('use', function(e)
+            {
+                switch (e.target.name) {
+                    case 'petals':
+                        if (dog.is("asleep")) {
+                            player.say("Yep, those did the trick!");
+                        } else {
+                            player.say(dog.cycleDialog(['Hmm.', 'He won\'t take them as-is.', 'I think I need to make them more enticing.']));
+                        }
+                    break;
+                    case 'chickenleg':
+                        player.say('He\'ll bite my hand off if I try to feed him directly.');
+                    break;
+                    default: return true;
+                }
+            });
+
             // ITEM: bowl
             bowl = game.createItem(root + 'dogbowl.png', {width: 27, coords:[386, 131], walkTo: [45, 25], layerPoint: [-10, 18],
                 title: 'dog bowl',
@@ -93,13 +109,14 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                             {
                                 bowl.set("full");
                                 player.say('Sweet dreams flea bag.');
-                                
+
                                 setTimeout(function()
                                 {
                                     game.add(bone);
                                     bowl.unset("full");
                                     dog.set("asleep");
-                                    player.say('He ate the chicken, spit out the bone, and passed out. W00t!');
+                                    dog.setDesc('He\'s asleep.;; Now I can sneak past him.');
+                                    player.say('He ate the chicken,;; spit out the bone,;; and passed out. W00t!');
                                 }, 1500);
                             });
                         }
@@ -123,11 +140,11 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                 bowl.setFrame(1);
                 bowl.unset('description');
             };
-            
+
             // ITEM: man
             man = game.createItem(root + 'man.png', {
                 width: 85, coords:[-4, 42], bounds:[14, 22, 75, 95], layerPoint:[5, 95], walkTo: [95, 75],
-                title: 'ugly old man', debug:true,
+                title: 'ugly old man',
                 description: [
                     "That's one ugly old man!",
                     "I wonder if he'll give me some chicken.",
@@ -171,7 +188,14 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                         }
                     break;
                     case 'petals':
-                        player.say(man.cycleDialog(['Hmm.', 'He won\'t take them as-is.', 'I think I need to make them more enticing.']));
+                        if (man.is("asleep")) {
+                            player.say("Yep, those did the trick!");
+                        } else {
+                            player.say(man.cycleDialog(['Hmm.', 'He won\'t take them as-is.', 'I think I need to make them more enticing.']));
+                        }
+                    break;
+                    case 'chickenleg':
+                        player.say('He\'s out cold.');
                     break;
                     default: return true;
                 }
@@ -179,9 +203,9 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             man.on('pickup', function()
             {
                 player.say(man.cycleDialog([
-                    'Hmm, if I picked up on him,;; would that make him a man-cougar,;; or me a confused barracuda?;; Either way,...;; no thanks.',
+                    'Do I look like an ant that can lift 10x my weight in old man bones?;; Don\'t answer that!',
+                    'He\'s not my type.',
                     'I thought we already covered this.',
-                    'Do I look like an ant that can lift 10x my weight in old man bones?',
                     '...'
                 ], 'pickup'));
             });
@@ -201,7 +225,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                         'Will your pooch at least get a taste?;;\
                             :man: That good fer nuthin\' mutt\'ll be lucky not to get a foot in his dawgballz&trade;.',
                         '...',
-                        'What\'s the point? He\'s a total prick.'
+                        'What\'s the point? He\'s a total jerk.'
                     ], 'pickup', false));
                 });
             });
@@ -212,7 +236,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                 man.setFrame(4);
                 return true;
             };
-            
+
             // ITEM: well
             well = game.createItem(root + 'well.png', {coords:[209, 133], bounds:[0, 0, 117, 90], walkTo:[55, 100], layerPoint:[0, 75],
                 description: [
@@ -228,14 +252,14 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             well.on('talkto', function(e)
             {
                 //player.say('I wish&hellip; ;; I wish&hellip;&hellip; ;; I wish I could get out of here.');
-                player.say('Hello.;; :well: <small>Hello.</small>;; :well: <small><small>Hello.</small></small>;; :player: I think that was an echo.');
+                player.say('Hello.;; :well: <small>Hello.</small>;; :well: <small><small style="display:inline-block;padding:20px;">Hello.</small></small>;; :player: I think that was an echo.');
             });
-            
+
             game.add(bottle);
-            
+
             // ITEM: fire
             fire = game.createItem(root + 'fire.png', {width:78, bounds:[9, 24, 70, 60], coords:[70, 122], walkTo: [25, 65],
-                frameBounds: [1, 2], layerPoint:[5, 60], fps: 4, playing: true, description: ['It\'s a raging hot fire.'], debug:true
+                frameBounds: [1, 2], layerPoint:[5, 60], fps: 4, playing: true, description: ['It\'s a raging hot fire.']
             });
             fire.on('pickup', function()
             {
@@ -273,9 +297,9 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             });
             fire.on('talkto', function(e)
             {
-                player.say('Yeah I might be small,;; but don\'t mistake this for the shire.;;\
+                player.say('Yeah I know I\'m small,;; but don\'t mistake this for the shire.;;\
                     Man I thought you knew,;; I be spittin\' hot fire.;; ...;;\
-                    It doesn\'t rap back;; it just crackles.');
+                    It doesn\'t rap back.;; it just crackles.');
             });
             // TODO fire.on("out")?
             fire.setOut = function()
@@ -288,7 +312,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                 fire.setFrame(3);
                 return true;
             };
-            
+
             // ITEM: chicken
             chicken = game.createItem(root + 'chicken.png', {width:40, coords:[100, 163], pocketable: true,
                 layerPoint:[100, 100], walkTo:[-5, 20], frameBounds:[1,4], playing:true, fps:2,
@@ -324,7 +348,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                                     player.say("One piece was enough.");
                                 }
                             } else {
-                                player.say("I won't get punted now but that fire is too hot!");
+                                player.say("I won't get the boot now but that fire is too hot!");
                             }
                         } else if (player.is("offended")) {
                             player.say("Seriously? Dude just punted me across the yard. WTF.");
@@ -349,13 +373,13 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             {
                 chicken.setFrame(5);
                 chicken.stop();
-                
+
                 if (bowl.isNot("full") && !player.has('chickenleg')) {
                     inventory.add(chickenLeg);
                 }
                 return true;
             }
-            
+
             // ITEM: bucket
             bucket = game.createItem(root + 'bucket.png', {coords:[331, 205], bounds:[0, 0, 32, 30], layerPoint:[0, 26], walkTo: [-5, 20], description: ['It\'s a bucket full of water. Cool.']
             });
@@ -386,7 +410,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                     default: return true;
                 }
             });
-            
+
             // ITEM: rock
             rock = game.createItem(root + 'rock.png', {coords:[296, 234], walkTo: [-10, 7],
                 description: ['It\'s a rock.', '100% Grade-A rock.', 'Still a rock.'], pocketable: true});
@@ -401,11 +425,8 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                         player.say('I don\'t want to break it.' +
                             (target.is('pocketed') ? '' : ';; There has to be another way to get it down.'));
                     break;
-                    case 'chicken':
-                        player.say('What would that make, a rockabirdy?.');
-                    break;
                     case 'man':
-                        var text = player.is('offended') ? 'Believe me, now I\'d love to.' : 'He hasn\'t done anything to me.';
+                        var text = player.is('offended') ? 'Believe me, I\'d love to.' : 'He hasn\'t done anything to me.';
                         player.say(text);
                     break;
                     case 'dog':
