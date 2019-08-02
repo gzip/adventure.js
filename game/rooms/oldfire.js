@@ -34,10 +34,11 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
 
         // ITEM: petals
         petals = game.createItem(root + 'flower.png', {
-            width: 16, height: 20, name: 'petals',
+            width: 20, height: 10, name: 'petals',
             description: ['Some sleepy willow petals.', 'They even <em>look</em> drowsy.'],
             render: false
         });
+        petals.setStyle('backgroundPosition', '-12px, -16px');
     },
 
     load : function(err, game)
@@ -50,23 +51,49 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             // TODO: order automatically based on y
 
             // ITEM: flower
+            zs = game.createItem(root + 'zs.png', {width: 33, coords:[150, 50], fps: 2, frameBounds: [1, 4], playing: true});
             flower = game.createItem(root + 'flower.png', {
-                coords:[150, 50], layerPoint:[0, 40], walkTo:[19, 48], pocketable: true,
+                width: 33, coords:[150, 50], layerPoint:[0, 40], walkTo:[19, 48], pocketable: true,
                 description: ['It\'s a sleepy willow.']
             });
-            flower.on('pickup', function()
+            flower.set("pickCount", 0);
+            flower.set("flowered");
+            flower.on("pickup", function()
             {
-                if (player.has('petals')) {
+                if (flower.get("pickCount") >= 2) {
+                    player.say("I don't need any more.");
+                } else if (player.has('petals')) {
                     player.say('I already have some petals.');
-                } else {
+                } else if (flower.is("flowered")) {
                     player.walkTo(flower, function()
                     {
-                        // TODO flower.setDeflowered
                         inventory.add(petals);
+                        ++flower.attrs.pickupCount;
+                        switch (flower.getFrame()) {
+                            case 1: flower.setFrame(6); flower.unset("flowered"); break;
+                            case 2: flower.setFrame(3); break;
+                            case 3: flower.setFrame(5); flower.unset("flowered"); break;
+                        }
                         player.say('I picked some petals from the sleepy willow.');
+
                     });
+                } else {
+
                 }
             });
+            flower.unsetFlowered = function()
+            {
+                zs.setFrame(1);
+                zs.stop();
+            };
+            flower.setWatered = function()
+            {
+                var frame = flower.getFrame();
+                flower.setFrame(frame === 1 ? 2 : 3);
+                flower.set("flowered");
+                zs.play();
+                return true;
+            };
             flower.on('talkto', function(e)
             {
                 player.say("Nah. I don't want to disturb them.;; :flower: Zzz...");
