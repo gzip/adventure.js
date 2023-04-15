@@ -44,14 +44,20 @@ util.extend(AdventureInventory, AdventureAsset,
         var self = this,
             player = self.getPlayer();
 
-        if (obj.isNot("pocketed")) {
-            obj.set('pocketed');
+        if (obj.is("destroyed")) {
+            return false;
         }
 
+        if (obj.isNot("pocketed")) {
+            obj.attrs.pocketed = true;
+        }
+
+        util.addClass(obj.container, "pocketed");
+
         self.items.push(obj);
-        self.selectItem(obj);
-        
         util.append(self.container, obj.container);
+
+        self.selectItem(obj);
 
         return true;
     },
@@ -116,12 +122,15 @@ util.extend(AdventureInventory, AdventureAsset,
     {
         var self = this;
 
-        self.items.forEach(function(item){
-            item.unset('pocketed');
-            util.append(self.limbo, item.container);
-        });
-
+        self.items.forEach(self.removeItem);
         self.items = [];
+    },
+
+    removeItem: function(item)
+    {
+        var self = this;
+        item.unset('pocketed');
+        util.append(self.limbo, item.container);
     }
 });
 

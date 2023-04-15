@@ -356,6 +356,16 @@ util.extend(AdventurePlayer, AdventureItem,
         // TODO setAttr?
         self.attrs.x = parseInt(self.getStyle('left'), 10);
         self.attrs.y = parseInt(self.getStyle('top'), 10);
+        self.attrs.frame = self.getFrame();
+    },
+
+    unserialize: function(savedAttrs)
+    {
+        var self = this;
+        util.setStyle(self.container, "transitionProperty", "none");
+        self.setAttrs(savedAttrs);
+        self.setZ();
+        util.setStyle(self.container, "transitionProperty", "top, left");
     },
 
     /*

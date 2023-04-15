@@ -11,7 +11,7 @@ AdventureAsset = function(path, opts, cb)
     self.coords = [0,0];
     self.load(path, opts || {}, cb);
     self.attrs = {};
-    
+
     // create debug tile
     if (opts && opts.debug) {
         self.createDebugTile(opts);
@@ -25,7 +25,7 @@ AdventureAsset.prototype =
     coords: [],
     bounds: null,
     attrs: {},
-    
+
     load: function(path, opts, cb)
     {
         var self = this,
@@ -36,11 +36,11 @@ AdventureAsset.prototype =
             }) : null,
             layerPoint = opts.layerPoint || [],
             bounds = opts.bounds;
-        
+
         if (util.isArray(bounds) && bounds.length === 4) {
             self.bounds = bounds;
         }
-        
+
         // create the container early so it's available downstream
         self.container = util.create('div', util.merge({
             styles: {
@@ -50,18 +50,18 @@ AdventureAsset.prototype =
             },
             parentNode: opts.parentNode || document.body
         }, (opts || {}).attrs, {shallow: true}));
-        
+
         if (util.isArray(opts.coords)) {
             self.setXY(opts.coords[0], opts.coords[1]);
         }
-        
+
         // for comparing z index
         self.layerPoint = [
             // use raw coords since x, y include bounds
             (layerPoint[0] || 0) + self.coords[0],
             (layerPoint[1] || 0) + self.coords[1]
         ];
-        
+
         // TODO self.handleImgLoad or self.fire('imageload')
         if (img) {
             img.onload = function()
@@ -83,70 +83,70 @@ AdventureAsset.prototype =
             cb(null, self);
         }
     },
-    
+
     getWidth: function()
     {
         var self = this,
             bounds = self.bounds;
         return bounds ? bounds[2] - bounds[0] : self.assetDims[0];
     },
-    
+
     getHeight: function()
     {
         var self = this,
             bounds = self.bounds;
         return bounds ? bounds[3] - bounds[1] : self.assetDims[1];
     },
-    
+
     getX: function()
     {
         var self = this,
             bounds = self.bounds;
         return self.coords[0] + (bounds ? bounds[0] : 0);
     },
-    
+
     getY: function()
     {
         var self = this,
             bounds = self.bounds;
         return self.coords[1] + (bounds ? bounds[1] : 0);
     },
-    
+
     getXY: function()
     {
         var self = this;
         return [self.getX(), self.getY()];
     },
-    
+
     setX: function(x, rel)
     {
         var self = this,
             bounds = self.bounds,
             offset = rel ? self.coords[0] : 0;
-        
+
         x += offset + (bounds ? bounds[0] : 0);
         util.setStyle(self.container, 'left', x);
         self.coords[0] = x;
     },
-    
+
     setY: function(y, rel)
     {
         var self = this,
             bounds = self.bounds,
             offset = rel ? self.coords[1] : 0;
-        
+
         y += offset + (bounds ? bounds[1] : 0);
         util.setStyle(self.container, 'top', y);
         self.coords[1] = y;
     },
-    
+
     setXY: function(x, y, rel)
     {
         var self = this;
         self.setX(x, rel);
         self.setY(y, rel);
     },
-    
+
     getBounds: function()
     {
         var self = this,
@@ -157,16 +157,16 @@ AdventureAsset.prototype =
             y = offset.y - boardOffset.y + (bounds ? bounds[1] : 0),
             w = self.getWidth(),
             h = self.getHeight();
-        
+
         // self.container.getBoundingClientRect()
         return [x, y, x + w, y + h];
     },
-    
+
     remove: function()
     {
         return this.container && util.remove(this.container);
     },
-    
+
     collidesWith: function(b1)
     {
         var self = this,
@@ -175,11 +175,11 @@ AdventureAsset.prototype =
             top = 1,
             right = 2,
             bottom = 3;
-        
+
         if (b1 instanceof AdventureAsset) {
             b1 = b1.getBounds();
         }
-        
+
                 // bounds 1′s bottom edge is above bounds 2′s top edge
         return !(  b1[bottom] < b2[top]
                 // bounds 1′s top edge is under bounds 2′s bottom edge
@@ -190,32 +190,32 @@ AdventureAsset.prototype =
                 || b1[right] < b2[left]
                 );
     },
-    
+
     getStyle : function(style, def)
     {
         return util.getStyle(this.container, style, def);
     },
-    
+
     setStyle : function(style, val, resolve)
     {
         return util.setStyle(this.container, style, val, resolve);
     },
-    
+
     setStyles : function(styles, resolve)
     {
         return util.setStyles(this.container, styles, resolve);
     },
-    
+
     is: function(a)
     {
         return !!this.get(a);
     },
-    
+
     isNot: function(a)
     {
         return !this.is(a);
     },
-    
+
     get: function(key, def)
     {
         var self = this,
@@ -234,7 +234,7 @@ AdventureAsset.prototype =
 
         return value;
     },
-    
+
     set: function(key, value)
     {
         var self = this,
@@ -252,7 +252,7 @@ AdventureAsset.prototype =
 
         self.attrs[key] = value;
     },
-    
+
     unset: function(key)
     {
         var self = this,
@@ -262,28 +262,32 @@ AdventureAsset.prototype =
             self[method]();
         }
 
-        delete self.attrs[key];
+        self.attrs[key] = false;
     },
-    
+
     // TODO setAll?
     setAttrs: function(attrs)
     {
         var self = this
         util.each(attrs, function(value, name)
         {
-            self.set(name, value);
+            if (value === false) {
+                self.unset(name, value);
+            } else {
+                self.set(name, value);
+            }
         });
     },
-    
+
     serialize: function()
     {
     },
-    
+
     unserialize: function(savedAttrs)
     {
         this.setAttrs(savedAttrs);
     },
-    
+
     // TODO get rid of styles and handle thru code
     mirror: function(m)
     {
@@ -291,14 +295,14 @@ AdventureAsset.prototype =
             method = m === false ? 'delClass' : 'addClass';
         util[method](self.container, 'mirror');
     },
-    
+
     flip: function(m)
     {
         var self = this,
             method = m === false ? 'delClass' : 'addClass';
         util[method](self.container, 'flip');
     },
-    
+
     createDebugTile: function(opts)
     {
         var self = this;
@@ -333,7 +337,7 @@ AdventureAsset.prototype =
             }
         );
     },
-    
+
     // supplemented by Adventure constructor
     getBoardOffset: function()
     {

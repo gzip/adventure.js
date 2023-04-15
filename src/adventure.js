@@ -22,16 +22,16 @@ function createProxy(obj, name, methods)
         {
             var method, m, ml;
             methods = methods || obj.getPublicMethods();
-            
+
             proxies[name] = {};
-            
+
             for(m=0, ml=methods.length; m<ml; m++)
             {
                 method = methods[m];
                 proxies[name][method] = util.bind(obj[method], obj);
             }
         }
-        
+
         return proxies[name];
     }
 }
@@ -46,16 +46,16 @@ function getPlayer()
         {
             var methods = player.getPublicMethods(),
                 method, m, ml;
-            
+
             playerProxy = {};
-            
+
             for(m=0, ml=methods.length; m<ml; m++)
             {
                 method = methods[m];
                 playerProxy[method] = util.bind(player[method], player);
             }
         }
-        
+
         return playerProxy;
     }
 }
@@ -100,7 +100,7 @@ Adventure = function(args)
     var self = this;
     args = args || {};
     util.listen(window, 'keyup', util.bind(self.handleKeys, self));
-    
+
     // create the container early so it's available downstream
     self.container = util.create('div', {
         styles: {
@@ -129,7 +129,7 @@ Adventure = function(args)
     });
 
     resources.game = self;
-    
+
     AdventureAsset.prototype.getBoardOffset = getBoardOffset;
 };
 
@@ -138,7 +138,7 @@ Adventure.prototype =
     index: 0,
     dialog: null,
     dialogTimer : null,
-    
+
     actions: [
         {name: 'walkto', title: 'walk to', method: 'onWalkTo', key: 87},
         {name: 'pickup', title: 'pick up', method: 'onPickUp', key: 80},
@@ -146,15 +146,15 @@ Adventure.prototype =
         {name: 'lookat', title: 'look at', method: 'onLookAt', key: 76},
         {name: 'talkto', title: 'talk to', method: 'onTalkTo', key: 84}
     ],
-    
+
     actionIndex: 0,
-    
+
     handleKeys: function(e)
     {
         var self = this,
             key = e.keyCode,
             actionName;
-        
+
         switch (key) {
             default:
                 self.actions.forEach(function(action)
@@ -165,12 +165,12 @@ Adventure.prototype =
                 });
             break;
         }
-        
+
         if (actionName) {
             self.setAction(actionName);
         }
     },
-    
+
     setAction: function(name)
     {
         var self = this,
@@ -182,28 +182,28 @@ Adventure.prototype =
             for(; a<al; a++)
             {
                 if (actions[a].name === name) {
-                    
+
                     self.actionIndex = a;
                     cursor.setFrame(a + 1);
                     self.updateStatus();
-                    
+
                     return a;
                 }
             }
         }
     },
-    
+
     getAction: function(key)
     {
         var self = this;
         return self.actions[self.actionIndex][key || 'name'];
     },
-    
+
     getActionMethod: function(name)
     {
         var self = this,
             method;
-        
+
         // check for custom name
         self.actions.forEach(function(action)
         {
@@ -211,7 +211,7 @@ Adventure.prototype =
                 method = action.method;
             }
         });
-        
+
         // default
         if (!method) {
             switch (name) {
@@ -222,15 +222,15 @@ Adventure.prototype =
                     method = 'on' + util.capitalize(name);
             }
         }
-        
+
         return method;
     },
-    
+
     add: function(asset)
     {
         util.append(this.container, asset && asset.container);
     },
-    
+
     create: function(type, objClass, path, opts, cb)
     {
         var self = this,
@@ -244,17 +244,17 @@ Adventure.prototype =
             ),
             item = getItem(name),
             player = resources.player;
-        
+
         // don't re-create if already in inventory
         if (type == 'item' && player.has(name)) {
             return item;
         }
-        
+
         opts ? null : opts = {};
         if (type !== 'board') {
             util.set(opts, 'attrs.parentNode', resources.board ? self.container : null);
         }
-        
+
         resource = new objClass(path, opts, function(err, obj)
         {
             // determine z-index
@@ -265,59 +265,60 @@ Adventure.prototype =
             } else if (opts.zIndex) {
                 index = opts.zIndex;
             } else {
-                index = (self.index += 10);
+                self.index += 10
+                index = self.index;
             }
-            
+
             // set z-index and object name
             util.setStyle(obj.container, zIndex, index);
             util.setAttrs(obj.container, {name: name});
-            
+
             obj.container.className = 'adv-' + type;
-            
+
             // handle room to room
             if (item) {
                 item.serialize();
                 resource.unserialize(item.attrs);
             }
-            
+
             // execute callback if present
             if (util.isFunc(cb)) {
                 cb(err, obj);
             }
         });
-        
+
         if (type == 'item') {
             resource.name = name;
             resources.items[name] = resource;
         } else {
             resources[type] = resource;
         }
-        
+
         return resource;
     },
-    
+
     registerRoom: function(name, object, opts)
     {
         var self = this,
             room;
-        
+
         opts = opts || {};
-        
+
         util.set(opts, 'attrs.parentNode', self.container);
-        
+
         room = self.create('board', object, opts.background, opts);
         room.init(self);
-        
+
         resources.rooms[name] = room;
     },
-    
+
     loadRoom: function(name)
     {
         var room = resources.rooms[name],
             player = resources.player,
             curName = resources.currentRoomName,
             curRoom = resources.rooms[curName];
-        
+
         // handle room switch
         if (curName && name !== curName) {
             // remove current room
@@ -332,20 +333,20 @@ Adventure.prototype =
                 }
             });
         }
-        
+
         // load room and store a named reference
         room.load(null, game);
         resources.currentRoomName = name;
-        
+
         // supplement methods
         player.tileAt = util.bind(room.coordsToTile, self);
         player.getTileSize = function(){ return room.tileSize; };
         player.coordsToPath = util.bind(room.coordsToPath, room);
-        
+
         // supplement methods
         room.getPlayer = getPlayer;
     },
-    
+
     createPlayer: function(path, opts)
     {
         var self = this,
@@ -353,24 +354,24 @@ Adventure.prototype =
             player = self.create(pl, AdventurePlayer, path, opts),
             board = resources.board,
             target;
-        
+
         // supplement methods
         player.say = util.bind(self.say, self, player);
         // TODO: player.getItems instead and move getMaxZ to player
         player.getMaxZ = util.bind(self.getMaxZ, self);
-        
+
         player.name = pl;
-        
+
         return player;
     },
-    
+
     getInventory: getInventory,
-    
+
     createInventory: function(opts)
     {
         var self = this,
             inv  = self.create('inventory', AdventureInventory, null, opts);
-        
+
         // supplement methods
         inv.getPlayer = getPlayer;
         inv.getSelectedItem = getSelectedItem;
@@ -379,22 +380,22 @@ Adventure.prototype =
             setSelectedItem(obj);
             inv.draw();
         };
-        
+
         // supplement properties
         //inv.getBoardDims = getBoardDims;
-        
+
         // supplement player
         resources.player.has = util.bind(inv.contains, inv);
-        
+
         return inv;
     },
-    
+
     createItem: function(path, opts, cb)
     {
         var self = this,
             // itemClass must extend AdventureItem TODO verify
             obj = self.create('item', opts.itemClass || AdventureItem, path, opts, cb);
-        
+
         // supplement methods
         // TODO add to AdventureItem prototype and set properties instead? Ideally all methods are available in constructor...
         obj.getInventory = getInventory;
@@ -414,13 +415,13 @@ Adventure.prototype =
         obj.getPlayer = getPlayer;
         obj.getItem = getItem;
         obj.say = util.bind(self.say, self, obj);
-        
+
         // init object after all supplementary methods are added
         obj.init();
-        
+
         return obj;
     },
-    
+
     createCursor: function(path, opts)
     {
         var self = this,
@@ -429,31 +430,31 @@ Adventure.prototype =
             // TODO rename
             boardContainer = self.container,
             boardOffset = getBoardOffset();
-        
+
         self.resolveCursorCoords = function(e)
         {
             return [(e.clientX - boardOffset.x), (e.clientY - boardOffset.y)];
         };
-        
+
         self.resolveCursorBounds = function(e)
         {
             var self = this,
                 coords = self.resolveCursorCoords(e),
                 offsets = (opts.offsets || [])[self.actionIndex] || [0,0];
-            
+
             return [
                 coords[0] + offsets[0], coords[1] + offsets[1],
                 coords[0] + offsets[0], coords[1] + offsets[1]
             ];
         };
-        
+
         util.listen(boardContainer, 'mousemove', function(e)
         {
             self.lastMove = {clientX: e.clientX, clientY: e.clientY};
             util.cancelFrame(self.mouseFrame);
             self.mouseFrame = util.onFrame(updateCursor);
         });
-        
+
         util.listen(boardContainer, 'contextmenu', function(e)
         {
             var i = 'actionIndex';
@@ -462,18 +463,18 @@ Adventure.prototype =
             cursor.setFrame(self[i] + 1);
             self.updateStatus();
         });
-        
+
         util.listen(boardContainer, 'click', function(e)
         {
             var action = self.getAction(),
                 obj = resources.targetItem,
                 payload = {e: e};
-            
+
             if(action === 'use')
             {
                 var inv = resources.inventory,
                     selectedItem = inv.getSelectedItem();
-                
+
                 payload.target = obj;
                 if (selectedItem && obj) {
                     selectedItem.fire(action, payload);
@@ -493,23 +494,23 @@ Adventure.prototype =
                 player.walkTo([toX, toY]);
             }
         });
-        
+
         util.listen(boardContainer, 'dblclick', function(e)
         {
             util.processEvent(e, true);
             boardContainer.focus();
         });
-        
+
         self.updateStatus();
-        
+
         return cursor;
     },
-    
+
     say: function(obj, text)
     {
         this.showDialog(text, obj);
     },
-    
+
     showDialog: function(text, target)
     {
         text = text || "";
@@ -523,26 +524,26 @@ Adventure.prototype =
             queue = text.split(sep),
             text = queue.shift(),
             matches = text.match(regexDialogTarget);
-        
+
         if (matches) {
             target = resources.items[matches[1]] || resources[matches[1]] || target;
             text = text.replace(matches[0], '');
         }
-        
+
         if (target instanceof AdventureSprite) {
             coords = target.getXY();
             className += ' ' + target.name + '-' + className;
         }
-        
+
         util.setClass(dialog, className);
         util.setStyles(dialog, {left: max(100, coords[0]), top: max(coords[1] - 20, 0)});
         dialog.innerHTML = text;
-        
+
         if(self.dialogTimer){
             clearTimeout(self.dialogTimer);
             self.dialogTimer = null;
         }
-        
+
         if (text) {
             next = queue.length ? util.trim(queue.join(sep)) : '';
             self.dialogTimer = setTimeout(function() {
@@ -550,7 +551,7 @@ Adventure.prototype =
             }, time);
         }
     },
-    
+
     updateCursor: function()
     {
         var self = this,
@@ -558,12 +559,12 @@ Adventure.prototype =
             player = resources.player,
             e = self.lastMove,
             coords = self.resolveCursorCoords(e);
-        
+
         cursor.setXY(coords[0], coords[1]);
         resources.targetItem = self.getItemUnderCursor(e);
         self.updateStatus();
     },
-    
+
     updateStatus: function()
     {
         var self = this,
@@ -572,7 +573,7 @@ Adventure.prototype =
             selected = resources.selectedItem,
             target = resources.targetItem,
             text = self.getAction('title') + ' ';
-        
+
         if (action === 'use') {
             if (selected) {
                 text += selected.getTitle() + ' with ' +
@@ -581,20 +582,20 @@ Adventure.prototype =
         } else if (target) {
             text += target.getTitle();
         }
-        
+
         if (self.lastText != text) {
             util.onFrame(function() {
                 self.lastText = status.innerHTML = text;
             });
         }
     },
-    
+
     // TODO rename eachItem?
     traverseItems: function(fn)
     {
         util.each(resources.items, fn);
     },
-    
+
     getItemUnderCursor: function(e)
     {
         var self = this,
@@ -602,19 +603,19 @@ Adventure.prototype =
             cursorContainer = cursor.container,
             cursorBounds = self.resolveCursorBounds(e),
             el, name, obj;
-        
+
         self.traverseItems(function(o)
         {
             if (o.collidesWith(cursorBounds)) {
                 obj = o;
             }
         });
-        
+
         resources.targetItem = obj;
-        
+
         return obj;
     },
-    
+
     getMaxZ: function()
     {
         var objs = resources.items,
@@ -632,7 +633,7 @@ Adventure.prototype =
                 //util.setStyle(obj.container, 'outline', '1px solid red');
                 var layerPoint = obj.layerPoint,
                     objZ = parseInt(util.getStyle(obj.container, zIndex), 10);
-                
+
                 if (obj.debugTile) {
                     util.setStyles(obj.debugTile, {
                         outline: '1px solid red',
@@ -648,7 +649,7 @@ Adventure.prototype =
                         height: 1
                     });
                 }
-                
+
                 if (playerCoords[0] >= layerPoint[0] && playerCoords[1] >= layerPoint[1]) {
                     if (objZ > z) {
                         z = objZ + 1;
@@ -663,45 +664,47 @@ Adventure.prototype =
 
         return z;
     },
-    
+
     save: function()
     {
         var self = this,
             player = resources.player,
             items = {};
-        
+
         self.traverseItems(function(item)
         {
             item.serialize();
             items[item.name] = item.attrs;
         });
-        
+
         player.serialize();
         items.player = player.attrs;
-        
+
         localStorage.saveGame = JSON.stringify(items);
         console.log(items);
     },
-    
+
     load: function()
     {
         var self = this,
             saved = localStorage.saveGame;
-        
+
         if (saved) {
             resources.saved = JSON.parse(saved || '{}');
             console.log(resources.saved);
-            
+
             // clear inventory
             self.getInventory().clear();
-            
+
             // set player location and any attrs
             player.unserialize(resources.saved.player);
-            
+
             // set all items to saved state
             self.traverseItems(function(item) {
                 item.unserialize(resources.saved[item.name] || {});
             });
+
+            resources.inventory.selectItem(null);
         }
     }
 };

@@ -256,9 +256,22 @@ util.extend(AdventureItem, AdventureSprite,
     setPocketed: function(pocketed)
     {
         var self = this;
-        if (self.isNot("pocketed")) {
-            util.addClass(self.container, "pocketed");
-        }
+        self.addToInventory();
+        return true;
+    },
+
+    setDestroyed: function()
+    {
+        return this.destroy();
+    },
+
+    destroy: function()
+    {
+        var self = this;
+        self.attrs.destroyed = true;
+        var inv = self.getInventory();
+        // we send the object to limbo so it's handled correctly on game load
+        inv.removeItem(self);
         return true;
     },
 
