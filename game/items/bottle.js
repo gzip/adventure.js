@@ -7,7 +7,7 @@ GameBottle = function(path, opts, cb)
     var self = this;
 
     opts = util.merge(opts || {}, {
-      width: 11, coords: [214, 119], walkTo: [-30, 70], layerPoint: [0, 50], zIndex: 100,
+      width: 11, coords: [214, 119], walkTo: [-30, 70], layerPoint: [0, 50], zIndex: 111,
       pocketable: true, title: "bottle of wine",
       description: ["It's a bottle of wine.", "Two buck chuck?;; Probably more like Thunderbird."]
     });

@@ -5,7 +5,7 @@ var util = SimpleUtil;
 GameDog = function(path, opts, cb)
 {
     var self = this;
-    
+
     opts = util.merge(opts || {}, {
         coords: [320, 92],
         walkTo: [40, 60],
@@ -15,7 +15,7 @@ GameDog = function(path, opts, cb)
             'How am I gonna get around him?'
         ]
     });
-    
+
     GameDog.parent.constructor.call(self, path, opts, cb);
 };
 
@@ -32,25 +32,25 @@ util.extend(GameDog, AdventureItem,
             }
         });
     },
-    
+
     onPickUp: function()
     {
         var self = this,
             player = self.getPlayer();
-        
+
         player.say(self.cycleDialog([
             'I don\'t want to touch that hairy mongrel!',
             'He probably has fleas!',
             'I\'m not touching the damn dog!'
         ], 'pickup', false));
     },
-    
+
     onUse: function(e)
     {
         var self = this,
             player = self.getPlayer(),
             target = e.target;
-        
+
         switch (target.name) {
             case 'chickenleg':
                 if (target.is("petaled")) {
@@ -65,16 +65,20 @@ util.extend(GameDog, AdventureItem,
             default: return true;
         }
     },
-    
+
     onTalkTo: function()
     {
         var self = this;
-        
-        self.say(self.cycleDialog([
-            'Woof!',
-            'Arf!',
-            'Le Chick!'
-        ], 'talkto'));
+
+        if (self.is('asleep')) {
+            player.say('He\'s asleep. I better not bother him.');
+        } else {
+            self.say(self.cycleDialog([
+                'Woof!',
+                'Arf!',
+                'Le Chick!'
+            ], 'talkto'));
+        }
     }
 });
 

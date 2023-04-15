@@ -68,7 +68,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                     player.walkTo(flower, function()
                     {
                         inventory.add(petals);
-                        ++flower.attrs.pickupCount;
+                        ++flower.attrs.pickCount;
                         switch (flower.getFrame()) {
                             case 1: flower.setFrame(6); flower.unset("flowered"); break;
                             case 2: flower.setFrame(3); break;
@@ -78,7 +78,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
 
                     });
                 } else {
-
+                    player.say('All the petals are gone.');
                 }
             });
             flower.unsetFlowered = function()
@@ -88,11 +88,15 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
             };
             flower.setWatered = function()
             {
-                var frame = flower.getFrame();
-                flower.setFrame(frame === 1 ? 2 : 3);
-                flower.set("flowered");
-                zs.play();
-                return true;
+                if (flower.get("pickCount") < 2)
+                {
+                    var frame = flower.getFrame();
+                    flower.setFrame(frame === 1 ? 2 : 3);
+                    flower.set("flowered");
+                    zs.play();
+                    return true;
+                }
+                return false;
             };
             flower.on('talkto', function(e)
             {
@@ -140,6 +144,7 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                                 setTimeout(function()
                                 {
                                     game.add(bone);
+                                    target.destroy();
                                     bowl.unset("full");
                                     dog.set("asleep");
                                     dog.setDesc('He\'s asleep.;; Now I can sneak past him.');
@@ -281,8 +286,6 @@ util.extend(TheOldManAndTheFire, AdventureRoom,
                 //player.say('I wish&hellip; ;; I wish&hellip;&hellip; ;; I wish I could get out of here.');
                 player.say('Hello.;; :well: <small>Hello.</small>;; :well: <small><small style="display:inline-block;padding:20px;">Hello.</small></small>;; :player: I think that was an echo.');
             });
-
-            game.add(bottle);
 
             // ITEM: fire
             fire = game.createItem(root + 'fire.png', {width:78, bounds:[9, 24, 70, 60], coords:[70, 122], walkTo: [25, 65],

@@ -33,7 +33,8 @@ util.extend(GameChickenLeg, AdventureItem,
                     chickenleg.setFrame(3);
                     chickenleg.setTitle("herbed chicken leg");
                     chickenleg.setDesc("A juicy herbed chicken leg.");
-                    inventory.remove("petals");
+                    chickenleg.setActive();
+                    target.destroy();
                 }
             break;
             default: return true;
