@@ -100,6 +100,7 @@ Adventure = function(args)
     var self = this;
     args = args || {};
     util.listen(window, 'keyup', util.bind(self.handleKeys, self));
+    util.listen(document, 'touchend', util.bind(self.handleTouch, self));
 
     // create the container early so it's available downstream
     self.container = util.create('div', {
@@ -168,6 +169,19 @@ Adventure.prototype =
 
         if (actionName) {
             self.setAction(actionName);
+        }
+    },
+
+    handleTouch: function(e)
+    {
+        var self = this;
+
+        // a touch event will be fired for every finger down!
+        var touchNum = e && e.touches && e.touches.length;
+
+        // but we only care about two fingers here
+        if (touchNum === 2) {
+            self.cycleAction();
         }
     },
 
@@ -457,11 +471,8 @@ Adventure.prototype =
 
         util.listen(boardContainer, 'contextmenu', function(e)
         {
-            var i = 'actionIndex';
             util.processEvent(e, true);
-            self[i] = self[i] === self.actions.length - 1 ? 0 : self[i] + 1;
-            cursor.setFrame(self[i] + 1);
-            self.updateStatus();
+            self.cycleAction();
         });
 
         util.listen(boardContainer, 'click', function(e)
@@ -563,6 +574,16 @@ Adventure.prototype =
         cursor.setXY(coords[0], coords[1]);
         resources.targetItem = self.getItemUnderCursor(e);
         self.updateStatus();
+    },
+
+    cycleAction: function()
+    {
+        var self = this,
+            cursor = resources.cursor,
+            a = 'actionIndex';
+
+        self[a] = self[a] === self.actions.length - 1 ? 0 : self[a] + 1;
+        cursor.setFrame(self[a] + 1);
     },
 
     updateStatus: function()
